@@ -23,3 +23,9 @@ variable "tags" {
     }
   
 }
+
+variable "enable_public_ip" {
+  type = bool
+  default = false
+  description = "Enable public IP for VM"
+}

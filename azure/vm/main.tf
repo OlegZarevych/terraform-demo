@@ -22,6 +22,7 @@ resource "azurerm_subnet" "subnet" {
 }
 
 resource "azurerm_public_ip" "public_ip" {
+  count = var.enable_public_ip == true ? 1 : 0
   name                = local.pip_name
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
@@ -59,7 +60,7 @@ resource "azurerm_network_interface" "nic" {
     name                          = "NicConfiguration"
     subnet_id                     = azurerm_subnet.subnet.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.public_ip.id
+    public_ip_address_id          = length(azurerm_public_ip.public_ip) > 0 ? azurerm_public_ip.public_ip[0].id : null
   }
 
   tags = var.tags
@@ -72,6 +73,7 @@ resource "azurerm_network_interface_security_group_association" "association" {
 
 resource "random_id" "randomId" {
   keepers = {
+     # Generate a new id each time we switch to a new RG
     resource_group = azurerm_resource_group.rg.name
   }
 
@@ -89,19 +91,17 @@ resource "azurerm_storage_account" "storage" {
   tags = var.tags
 }
 
-# Create (and display) an SSH key
 resource "tls_private_key" "example_ssh" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
-# Create virtual machine
 resource "azurerm_linux_virtual_machine" "linuxvm" {
   name                  = local.vm_name
   location              = azurerm_resource_group.rg.location
   resource_group_name   = azurerm_resource_group.rg.name
   network_interface_ids = [azurerm_network_interface.nic.id]
-  size                  = "Standard_B2ts_v2"
+  size                  = "Standard_B1ms"
 
   os_disk {
     name                 = "osDisk"
@@ -112,7 +112,7 @@ resource "azurerm_linux_virtual_machine" "linuxvm" {
   source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
-    sku       = "22.04-LTS"
+    sku       = "18.04-LTS"
     version   = "latest"
   }
 
