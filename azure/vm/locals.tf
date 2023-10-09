@@ -1,5 +1,5 @@
 locals {
-  vnet_name =  "${var.name}-vnet"
+  vnet_name   = "${var.name}-vnet"
   subnet_name = "${var.name}-subnet"
   pip_name    = "${var.name}-pip"
   nsg_name    = "${var.name}-nsg"

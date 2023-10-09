@@ -22,7 +22,7 @@ resource "azurerm_subnet" "subnet" {
 }
 
 resource "azurerm_public_ip" "public_ip" {
-  count = var.enable_public_ip == true ? 1 : 0
+  count               = var.enable_public_ip == true ? 1 : 0
   name                = local.pip_name
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
@@ -73,7 +73,7 @@ resource "azurerm_network_interface_security_group_association" "association" {
 
 resource "random_id" "randomId" {
   keepers = {
-     # Generate a new id each time we switch to a new RG
+    # Generate a new id each time we switch to a new RG
     resource_group = azurerm_resource_group.rg.name
   }
 
@@ -130,4 +130,36 @@ resource "azurerm_linux_virtual_machine" "linuxvm" {
   }
 
   tags = var.tags
+
+  connection {
+    host        = self.public_ip_address
+    user        = "azureuser"
+    type        = "ssh"
+    private_key = file("./private_key.pem")
+    timeout     = "4m"
+    agent       = false
+  }
+
+  # provisioner "file" {
+  #     source = "example_file.txt"
+  #     destination = "/tmp/example_file.txt"
+  # }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt-get update",
+      "sudo apt-get install docker.io -y",
+      "sudo docker run -d -p 80:80 httpd"
+    ]
+  }
+
+  provisioner "local-exec" {
+    command = "echo 'Creation is successful.' >> creation.txt"
+  }
+
+  provisioner "local-exec" {
+    when = destroy
+    command = "echo 'Destruction is successful.' >> destruction.txt"
+  }
+
 }

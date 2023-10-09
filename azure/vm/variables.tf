@@ -11,21 +11,21 @@ variable "location" {
 }
 
 variable "name" {
-    type = string
-    description = "Name which we will use around whole module"
+  type        = string
+  description = "Name which we will use around whole module"
 }
 
 variable "tags" {
-    type = map
-    default = {
-        "env" = "demo",
-        "terraform" = "true"
-    }
-  
+  type = map(any)
+  default = {
+    "env"       = "demo",
+    "terraform" = "true"
+  }
+
 }
 
 variable "enable_public_ip" {
-  type = bool
-  default = false
+  type        = bool
+  default     = true
   description = "Enable public IP for VM"
 }
