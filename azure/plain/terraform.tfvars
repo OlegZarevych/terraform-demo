@@ -1,0 +1,1 @@
+app_service_name = "tf-demo-nginx"
