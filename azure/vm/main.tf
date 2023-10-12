@@ -1,3 +1,7 @@
+# data "local_file" "private_key" {
+#   filename = "../private_key.pem"
+# }
+
 resource "azurerm_resource_group" "rg" {
   name     = var.rg_name
   location = var.location
@@ -135,7 +139,7 @@ resource "azurerm_linux_virtual_machine" "linuxvm" {
     host        = self.public_ip_address
     user        = "azureuser"
     type        = "ssh"
-    private_key = file("./private_key.pem")
+    private_key = file("../private_key.pem")
     timeout     = "4m"
     agent       = false
   }
